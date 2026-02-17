@@ -25,9 +25,9 @@ Tools
 Provenance
 ===
 
-[![Gordian Open Integrity](https://github.com/Stream44/t44/Workshop/workflows/gordian-open-integrity.yaml/badge.svg)](https://github.com/Stream44/Workshop/actions/workflows/gordian-open-integrity.yaml?query=branch%3Amain) [![DCO Signatures](https://github.com/Stream44/Workshop/actions/workflows/dco.yaml/badge.svg)](https://github.com/Stream44/Workshop/actions/workflows/dco.yaml?query=branch%3Amain)
+[![Gordian Open Integrity](https://github.com/Stream44/Workshop/actions/workflows/gordian-open-integrity.yaml/badge.svg)](https://github.com/Stream44/Workshop/actions/workflows/gordian-open-integrity.yaml?query=branch%3Amain) [![DCO Signatures](https://github.com/Stream44/Workshop/actions/workflows/dco.yaml/badge.svg)](https://github.com/Stream44/Workshop/actions/workflows/dco.yaml?query=branch%3Amain)
 
-Repository DID: `did:repo:9f205b12f21b411bdcc484362ce4f63f6eb10079`
+Repository DID: `did:repo:30a7d285bf38b40d957e5a8ff80e9f6313a69a56`
 
 <table>
   <tr>
