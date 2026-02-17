@@ -20,13 +20,15 @@ The implementation is a standalone capsule that delegates to [GitRepositoryIdent
 
 ## 1. Capsule
 
-**File:** `caps/GitRepositoryIntegrity.ts`<br/>
-**Capsule name:** `t44/caps/providers/blockchaincommons.com/GitRepositoryIntegrity`
+**File:** [`caps/GitRepositoryIntegrity.ts`](https://github.com/Stream44/t44-blockchaincommons.com/blob/main/caps/GitRepositoryIntegrity.ts)<br/>
+**Capsule name:** `@stream44.studio/t44-blockchaincommons.com/caps/GitRepositoryIntegrity`
 
 ### 1.1 Mapped Dependencies
 
 | Mapping | Capsule | Purpose |
-|---------|---------|---------|
+|---------|---------|--------|
+| `git` | `git` | Git command execution |
+| `fs` | `fs` | File I/O |
 | `repoId` | `GitRepositoryIdentifier` | Layer 2 identifier validation |
 | `xid` | `xid` | XID Document deserialization, assertion extraction |
 | `ledger` | `XidDocumentLedger` | Provenance YAML parsing |
@@ -35,7 +37,6 @@ The implementation is a standalone capsule that delegates to [GitRepositoryIdent
 ### 1.2 Constants
 
 ```typescript
-const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
 const PROVENANCE_FILE = '.o/GordianOpenIntegrity.yaml'
 const ASSERTION_SIGNING_KEY = 'GordianOpenIntegrity.SigningKey'
 const ASSERTION_REPO_ID = 'GordianOpenIntegrity.RepositoryIdentifier'
@@ -132,15 +133,14 @@ Returns:
 ```
 
 Steps:
-1. Collect provenance history from `git log -- .o/GordianOpenIntegrity.yaml`
+1. Collect full provenance history from `git log -- .o/GordianOpenIntegrity.yaml`
 2. Parse each version via `ledger.parseProvenanceYaml` → XID Document + Provenance Mark
-3. Verify mark sequence monotonicity
-4. Compare published mark against latest (if provided)
-5. Collect SSH keys from `GordianOpenIntegrity.SigningKey` assertions
-6. Audit all commit signatures against collected keys
-7. Verify XID stability across versions
+3. Verify published mark against **latest** provenance version only (supports trust root resets)
+4. Collect SSH keys from `GordianOpenIntegrity.SigningKey` assertions across **all** versions (supports key rotation)
+5. Audit all commit signatures against collected keys
+6. XID taken from latest entry (no cross-version stability check)
+7. If `strict.repoIdentifierIsInceptionCommit`: Layer 4.2 check
 8. If `strict.signersAllAuthorized`: Layer 4.1 check
-9. If `strict.repoIdentifierIsInceptionCommit`: Layer 4.2 check
 
 ### 4.2 `verifyDocument(context)`
 

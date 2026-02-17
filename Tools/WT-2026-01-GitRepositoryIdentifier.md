@@ -20,10 +20,10 @@ The implementation is a standalone capsule with no external dependencies beyond 
 
 ## 1. Capsule
 
-**File:** `caps/GitRepositoryIdentifier.ts`<br/>
-**Capsule name:** `t44/caps/providers/blockchaincommons.com/GitRepositoryIdentifier`
+**File:** [`caps/GitRepositoryIdentifier.ts`](https://github.com/Stream44/t44-blockchaincommons.com/blob/main/caps/GitRepositoryIdentifier.ts)<br/>
+**Capsule name:** `@stream44.studio/t44-blockchaincommons.com/caps/GitRepositoryIdentifier`
 
-No mapped dependencies — all git operations are handled via internal helpers (`_exec`, `_git`, `_sshKeygen`, `_getFingerprint`, `_ensureGitRepo`).
+Mapped dependencies: `git`, `key`, `fs` — low-level capsules for git operations, SSH key handling, and file I/O.
 
 ---
 

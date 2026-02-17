@@ -17,7 +17,7 @@ Having a list of signed commits is great but it does not allow us to uniquely id
 
 ## Prior Work
 
-There is some exiting work around identifying git repositories with an inception commit at [Open Integrity](https://github.com/OpenIntegrityProject/core). Our pattern is inspired by this prior work with an important changed: The **inception commit** does not need to be the **first commit**.
+There is some exiting work around identifying git repositories with an inception commit at [Open Integrity](https://github.com/OpenIntegrityProject/core). Our pattern is inspired by this prior work with an important change: The **inception commit** does not need to be the **first commit**.
 
 We found there is a requirement for flexibility around the inception commit:
  * While it is nice to begin every repository with an inception commit, the approach does not work for existing repositories which is a requirement for us.
@@ -35,7 +35,7 @@ It allows a repository owner to modify the identifier if needed yet still valida
 
 ## Approach
 
-A **repository identifier commit** is added to a repository as the first commit, making it an **inception commit**, or at any point later making it an **identifier tag commit**.
+A **repository identifier commit** is added to a repository as the first commit, making it an **inception commit**, or at any point later making it an **identifier attachment commit**.
 
 The commit hash becomes the repository identifier in the form of `did:repo:<hash>`.
 
@@ -160,5 +160,5 @@ fi
 
 The identifier marks a stable point in time in the repository signed with a specific key. The same key may be used to sign git commits or construct additional documents such as an XID Document. The order of these events do not matter as **trust** is established by evaluating the commit activity against a policy that specifies certain requirements. These requirements may be adjusted to what is possible or desired for any specific repository.
 
-See [WP-2026-02-GitRepository-Integrity](./WP-2026-02-GitRepository-Integrity.md) for one example of a passive integrity pattern build on this identifier and [WP-2026-03-GordianOpenIntegrity](./WP-2026-03-GordianOpenIntegrity.md) for an active pattern able to rotate signing keys with complete provenance.
+See [WP-2026-02-GitRepository-Integrity](./WP-2026-02-GitRepository-Integrity.md) for one example of a integrity pattern built on this identifier and [WP-2026-03-GitRepository-GordianOpenIntegrity](./WP-2026-03-GitRepository-GordianOpenIntegrity.md) for a pattern able to rotate signing keys with complete provenance.
 

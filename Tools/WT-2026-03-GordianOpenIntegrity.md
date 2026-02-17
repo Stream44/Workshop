@@ -16,6 +16,8 @@ This document describes the TypeScript reference implementation of the [Gordian 
 
 The implementation uses the [Encapsulate](https://github.com/Stream44/encapsulate) capsule framework, where each module ("capsule") declares typed properties and dependency mappings. All capsules live under `caps/` in the [t44-blockchaincommons.com](https://github.com/Stream44/t44-blockchaincommons.com) package.
 
+**Main Implementation:** [`caps/GordianOpenIntegrity.ts`](https://github.com/Stream44/t44-blockchaincommons.com/blob/main/caps/GordianOpenIntegrity.ts)
+
 ---
 
 ## 1. Architecture
@@ -69,10 +71,11 @@ Defined at the top of `caps/GordianOpenIntegrity.ts`:
 ```typescript
 const PROVENANCE_FILE        = '.o/GordianOpenIntegrity.yaml'
 const GENERATOR_FILE         = '.git/o/GordianOpenIntegrity-generator.yaml'
-const ASSERTION_SSH          = 'GordianOpenIntegrity'
+const ASSERTION_SIGNING_KEY  = 'GordianOpenIntegrity.SigningKey'
+const ASSERTION_REPO_ID      = 'GordianOpenIntegrity.RepositoryIdentifier'
 const ASSERTION_DOCUMENT     = 'GordianOpenIntegrity.Document'
 const ASSERTION_DOCUMENTS    = 'GordianOpenIntegrity.Documents'
-const CONTRACT               = 'Trust established using https://github.com/Stream44/Workshop'
+const CONTRACT               = 'Trust established using https://github.com/Stream44/t44-BlockchainCommons.com'
 const INCEPTION_LIFEHASH_FILE = '.o/GordianOpenIntegrity-InceptionLifehash.svg'
 const CURRENT_LIFEHASH_FILE  = '.o/GordianOpenIntegrity-CurrentLifehash.svg'
 ```
@@ -173,16 +176,39 @@ context: {
 ```
 
 Sequence:
-1. `repoId.createIdentifier(...)` → inception commit + `.repo-identifier` (Pattern §4.1 Step 2)
-2. `createDocument({ documentKeyPath, provenanceKeyPath })` → XID Document (Pattern §4.1 Step 1)
-3. `ledger.createLedger(...)` → writes `.o/GordianOpenIntegrity.yaml` and `.git/o/GordianOpenIntegrity-generator.yaml` (Pattern §4.1 Step 3)
-4. `ledger.commit({ label: 'link-ssh-key' })` → advances mark to seq 1 (Pattern §4.1 Step 1.4)
-5. `_createSignedCommit(...)` → commits the inception envelope (Pattern §4.1 Step 4)
-6. `_writeLifehashes({ inception: true })` → writes both SVGs (Pattern §4.1 Step 5)
+1. `repoId.createIdentifier(...)` → repository identifier commit + `.repo-identifier` (Pattern §4.1 Step 1)
+2. Delegates to `createTrustRoot(...)` with the newly created identifier (Pattern §4.1 Steps 2–5)
 
 Returns: `{ did, commitHash, mark, author }`
 
 The `author` object is returned for use with subsequent operations (`rotateTrustSigningKey`, `introduceDocument`).
+
+#### `createTrustRoot(context)`
+
+Maps to: **Pattern §4.5 (Trust Root Reset)** and internally used by `createRepository`
+
+```typescript
+context: {
+    repoDir: string
+    authorName: string
+    authorEmail: string
+    firstTrustKeyPath: string     // Path to SSH Ed25519 private key (REQUIRED)
+    provenanceKeyPath: string     // Path to Ed25519 key for provenance seed (REQUIRED)
+    contract?: string
+    existingIdentifier?: { commitHash: string; did: string; inceptionDate?: Date }
+}
+```
+
+If `existingIdentifier` is not provided, reads the current identifier from `.repo-identifier`.
+
+Sequence:
+1. `createDocument({ documentKeyPath, provenanceKeyPath })` → XID Document (Pattern §4.1 Step 2)
+2. `ledger.createLedger(...)` with `ASSERTION_SIGNING_KEY` and `ASSERTION_REPO_ID` assertions → writes `.o/GordianOpenIntegrity.yaml` and generator (Pattern §4.1 Step 3)
+3. `ledger.commit({ label: 'link-ssh-key' })` → advances mark to seq 1
+4. `git.createSignedCommit(...)` → commits the inception envelope (Pattern §4.1 Step 4)
+5. `_writeLifehashes({ inception: true })` → writes both SVGs (Pattern §4.1 Step 5)
+
+Returns: `{ did, commitHash, mark, author }`
 
 #### `rotateTrustSigningKey(context)`
 
@@ -203,7 +229,7 @@ Sequence:
 1. Read new SSH key from `newSigningKeyPath` (Pattern §4.3 Step 1)
 2. `xid.addKey(...)` + update `ASSERTION_SIGNING_KEY` + `ledger.commit({ label: 'add-rotated-key' })` (Pattern §4.3 Step 2)
 3. `xid.removeInceptionKey(...)` + `ledger.commit({ label: 'remove-inception-key' })` (Pattern §4.3 Step 2)
-4. `_createSignedCommit(...)` signed with **existing** key (Pattern §4.3 Step 3)
+4. `git.createSignedCommit(...)` signed with **existing** key (Pattern §4.3 Step 3)
 5. `_writeLifehashes(...)` → updates current SVG (Pattern §4.3 Step 4)
 6. Updates `author.sshKey` to the new key
 
@@ -234,7 +260,7 @@ Sequence:
 2. `ledger.commit({ label: 'introduce:<path>' })` on inception ledger (Pattern §4.2 Step 2)
 3. `ledger.createLedger(...)` for the document with `ASSERTION_DOCUMENT` (Pattern §4.2 Step 1, Step 3)
 4. `ledger.commit(...)` on document ledger (Pattern §4.2 Step 3)
-5. `_createSignedCommit(...)` with both files (Pattern §4.2 Step 4)
+5. `git.createSignedCommit(...)` with both files (Pattern §4.2 Step 4)
 6. `_writeLifehashes(...)` → updates current SVG (Pattern §4.2 Step 5)
 
 #### `commitToRepository(context)`
@@ -265,13 +291,12 @@ context: {
 }
 ```
 
-Implementation:
-1. `_collectProvenanceHistory({ documentPath: PROVENANCE_FILE })` → git log + parse each version (Pattern §5.1 Step 1)
-2. Check mark sequence monotonicity (Pattern §5.1 Step 2)
-3. Compare published mark against latest (Pattern §5.1 Step 3)
-4. Collect SSH keys from `ASSERTION_SSH` across all versions (Pattern §5.1 Step 4)
-5. `git.auditRepository({ allowedSigners })` (Pattern §5.1 Step 5)
-6. Check XID stability (Pattern §5.1 Step 6)
+Delegates to `integrity.verify(context)` on the `GitRepositoryIntegrity` capsule. See [WT-2026-02](./WT-2026-02-GitRepositoryIntegrity.md) for the full verification flow.
+
+Key behavior:
+- Validates published mark against the **latest** trust root only (supports trust root resets)
+- Collects SSH keys from **all** provenance versions (supports key rotation)
+- XID taken from latest entry
 
 Returns the result object described in Pattern §5.1 Validity Criteria.
 
@@ -307,7 +332,7 @@ For each commit hash:
 2. `ledger.parseProvenanceYaml(...)` → `{ urString, mark }`
 3. `xid.envelopeFromUrString(...)` → Envelope
 4. `xid.fromEnvelope(...)` → XIDDocument
-5. `xid.getEnvelopeAssertions({ predicate: ASSERTION_SSH })` → SSH keys
+5. `xid.getEnvelopeAssertions({ predicate: ASSERTION_SIGNING_KEY })` → SSH keys
 6. `xid.getProvenance(...)` → ProvenanceMark
 
 Returns: `Array<{ xid, sshKeys, document, envelope, mark }>`
@@ -321,18 +346,26 @@ Returns: `Array<{ xid, sshKeys, document, envelope, mark }>`
 
 ---
 
-## 5. Git Operations
+## 5. Low-Level Mapped Capsules
 
-Git operations are now handled internally by `GordianOpenIntegrity` via private helper methods (`_readSigningKey`, `_generateSigningKey`, `_createSignedCommit`, `_git`, `_exec`). Repository identifier operations are delegated to the `GitRepositoryIdentifier` capsule (see [WT-2026-01](./WT-2026-01-GitRepositoryIdentifier.md)), and integrity validation is delegated to the `GitRepositoryIntegrity` capsule (see [WT-2026-02](./WT-2026-02-GitRepositoryIntegrity.md)).
+`GordianOpenIntegrity` delegates git, key, and file operations to three low-level capsules:
+
+| Mapping | Capsule | Purpose |
+|---------|---------|---------|
+| `git` | `git` | Git command execution (`createSignedCommit`, `run`, `ensureRepo`, `listCommits`, `auditSignatures`) |
+| `key` | `key` | SSH key reading (`readSigningKey`), key derivation (`deriveKeyBase`, `deriveProvenanceSeed`), key generation (`generateSigningKey`) |
+| `fs` | `fs` | File I/O (`readFile`, `writeFile`, `mkdir`, `join`) |
+
+Repository identifier operations are delegated to the `GitRepositoryIdentifier` capsule (see [WT-2026-01](./WT-2026-01-GitRepositoryIdentifier.md)), and integrity validation is delegated to the `GitRepositoryIntegrity` capsule (see [WT-2026-02](./WT-2026-02-GitRepositoryIntegrity.md)).
 
 ### 5.1 Key Derivation
 
-Two internal helpers derive deterministic keys from Ed25519 key files:
+Two methods on the `key` capsule derive deterministic keys from Ed25519 key files:
 
-| Helper | Purpose |
+| Method | Purpose |
 |--------|---------|
-| `_deriveKeyBase({ keyPath })` | SHA-256 hash of key file data → `PrivateKeyBase.fromData()` for XID key material |
-| `_deriveProvenanceSeed({ keyPath })` | SHA-256 hash of key file data → `Uint8Array` for provenance mark seeding and generator encryption |
+| `key.deriveKeyBase({ keyPath })` | SHA-256 hash of key file data → `PrivateKeyBase.fromData()` for XID key material |
+| `key.deriveProvenanceSeed({ keyPath })` | SHA-256 hash of key file data → `Uint8Array` for provenance mark seeding and generator encryption |
 
 This approach ensures deterministic XID and provenance generation from the same key files.
 
@@ -442,15 +475,13 @@ The script is located in the reference implementation repository at `bin/validat
 | Test Group | Coverage |
 |-----------|----------|
 | 1. createDocument | Standalone document creation |
-| 2. createRepository | Inception commit, file creation, DID, author object |
-| 3. verify | Repository verification with/without mark |
-| 4. rotateTrustSigningKey | Key rotation, SSH key replacement |
-| 5. introduceDocument | Document registration, commit |
-| 6. verifyDocument | Self-reference, Documents map, signatures |
-| 7. commitToRepository | Regular signed commits |
-| 8. Multiple documents | Multiple document introductions |
-| 9. Rotation + introduction | Combined key rotation then document introduction |
-| 10. Utility methods | `provenancePath`, `getMarkIdentifier`, `getLatestMark` |
+| 2. createRepository | Repository identifier, inception envelope, file creation, DID, author object |
+| 3. verify | Repository verification with/without mark, wrong mark detection |
+| 4. rotateTrustSigningKey | Key rotation, SSH key replacement, verification after rotation |
+| 5. introduceDocument | Document registration, Documents map assertion, commit |
+| 6. commitToRepository | Regular signed commits, empty commits |
+| 7. createTrustRoot | Trust root reset preserving DID, verification after reset, old mark invalidation |
+| 8. Utility methods | `provenancePath`, `getMarkIdentifier`, `getLatestMark` |
 
 ### 10.2 Integration Tests
 

@@ -18,7 +18,7 @@ To conduct additional validation we require two things:
 - A trust root that establishes a point in time from which policies apply
 - A mechanism to cryptographically define policies and policy changes
 
-Each of these layers makes additional validation possible and this pattern aims to provide a cohesive validation approach able to establis the integrity of a repository in terms of trust and provenance.
+Each of these layers makes additional validation possible and this pattern aims to provide a cohesive validation approach able to establish the integrity of a repository in terms of trust and provenance.
 
 
 ## Overview
@@ -320,16 +320,6 @@ Each layer result is independently accessible for targeted inspection.
 
 ## Implementation
 
-The reference implementation is the `GitRepositoryIntegrity` capsule at:
-
-```
-t44/caps/providers/blockchaincommons.com/GitRepositoryIntegrity
-```
-
-All four validation layers, including `verify`, `verifyDocument`, and `validate`, are implemented in this capsule. The `GordianOpenIntegrity` capsule maps `GitRepositoryIntegrity` and delegates all verification to it:
-
-```
-t44/caps/providers/blockchaincommons.com/GordianOpenIntegrity
-```
+The reference implementation is the [`GitRepositoryIntegrity`](https://github.com/Stream44/t44-blockchaincommons.com/blob/main/caps/GitRepositoryIntegrity.ts) capsule. All four validation layers, including `verify`, `verifyDocument`, and `validate`, are implemented in this capsule. The [`GordianOpenIntegrity`](https://github.com/Stream44/t44-blockchaincommons.com/blob/main/caps/GordianOpenIntegrity.ts) capsule maps `GitRepositoryIntegrity` and delegates all verification to it.
 
 See [WP-2026-01-GitRepository-Identifier](./WP-2026-01-GitRepository-Identifier.md) for the repository identifier pattern and [WP-2026-03-GitRepository-GordianOpenIntegrity](./WP-2026-03-GitRepository-GordianOpenIntegrity.md) for the full Gordian Open Integrity specification.

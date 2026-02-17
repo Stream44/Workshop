@@ -10,7 +10,7 @@ Status: DRAFT — Work in Progress
 
 ## Introduction
 
-**Gordian Open Integrity** is a system for recording cryptographically verifiable decisions *about* a git repository *in* the git repository itself. It uses [XID Documents](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2024-010-xid.md), [Gordian Envelopes](https://datatracker.ietf.org/doc/draft-mcnally-envelope/), and [Provenance Marks](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md) to establish an open namespace for decisions of any kind, tied cryptographically to a repository inception commit.
+**Gordian Open Integrity** is a system for recording cryptographically verifiable decisions *about* a git repository *in* the git repository itself. It uses [XID Documents](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2024-010-xid.md), [Gordian Envelopes](https://datatracker.ietf.org/doc/draft-mcnally-envelope/), and [Provenance Marks](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md) to establish an open namespace for decisions of any kind, tied cryptographically to a [WP-2026-01-GitRepository-Identifier](./WP-2026-01-GitRepository-Identifier.md) commit.
 
 The document graph formed by the inception envelope and its registered decision documents is **self-describing and portable**. While the envelopes live inside the git repository, they can also be extracted and distributed independently — for example, as a standalone governance model, a policy bundle, or a trust anchor — without requiring the recipient to clone the entire codebase. Each envelope carries its own provenance chain, XID identity, and document-path self-reference, making it verifiable in isolation. When combined with the repository, the full commit-signature audit provides an additional layer of assurance.
 
@@ -29,15 +29,16 @@ Given the latest provenance mark via a publishing channel, verifiers can confirm
 
 | Term | Definition |
 |------|-----------|
-| **Inception Commit** | The first (empty, signed) commit in the repository, establishing the SHA-1 root of trust. Its hash forms the repository DID. |
-| **Repository DID** | `did:repo:<inception-commit-hash>` — a stable identifier for the repository derived from the inception commit. |
+| **Repository Identifier** | A signed, empty commit whose hash forms the repository DID. Created per [WP-2026-01-GitRepository-Identifier](./WP-2026-01-GitRepository-Identifier.md). May be the first commit or attached later. |
+| **Repository DID** | `did:repo:<identifier-commit-hash>` — a stable identifier for the repository derived from the repository identifier commit. |
 | **Inception Envelope** | The XID Document at `.o/GordianOpenIntegrity.yaml` — the root of the provenance chain. |
+| **Trust Root** | The combination of a repository identifier and an inception envelope that establishes the cryptographic foundation for all subsequent provenance. A trust root can be reset while preserving the repository identifier. |
 | **Decision Document** | Any additional XID Document under `.o/<hostname>/`, registered in the inception envelope's `Documents` map. |
 | **Provenance Mark** | A hash-chain entry ([BCR-2025-001](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md)) that seals a document revision into a verifiable sequence. |
 | **Generator** | The secret state used to produce successive provenance marks. MUST NOT be committed to git. |
-| **XID** | An eXtensible IDentifier ([BCR-2024-010](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2024-010-xid.md)) — a stable 32-byte identifier derived from the hash of an inception key. |
+| **XID** | An eXtensible IDentifier ([BCR-2024-010](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2024-010-xid.md)) — a stable 32-byte identifier derived from the hash of the initial signing key. |
 | **LifeHash** | A visual hash ([lifehash.info](https://lifehash.info)) of the provenance mark, stored as SVG for human recognition. |
-| **Ricardian Contract** | A textual trust statement embedded in the inception commit (e.g. `Trust established using https://github.com/Stream44/Workshop`). |
+| **Ricardian Contract** | A textual trust statement embedded in the provenance commit (e.g. `Trust established using https://github.com/Stream44/t44-BlockchainCommons.com`). |
 
 ### Normative References
 
@@ -45,7 +46,6 @@ Given the latest provenance mark via a publishing channel, verifiers can confirm
 - [BCR-2024-003: Gordian Envelope](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2024-003-envelope.md)
 - [BCR-2025-001: Provenance Mark](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md)
 - [draft-mcnally-envelope: Gordian Envelope IETF Draft](https://datatracker.ietf.org/doc/draft-mcnally-envelope/)
-- [did:repo Method](https://danubetech.github.io/did-method-repo/)
 
 ---
 
@@ -147,16 +147,17 @@ envelope: "ur:envelope/lftpsogdhkwzdtfthptokigtvwnnjsqzcxknsktpsogdhkwz..."
 mark: "a9ea4602"
 ---
 # Repository DID: did:repo:abc123def456
-# Current Mark: a9ea4602 (🅑 WARM ARCH RAMP HORN)
-# Inception Mark: 7b3f1a08 (🅑 IRON AQUA BUZZ DICE)
+# Current Mark: a9ea4602 (� WARM ARCH RAMP HORN)
+# Inception Mark: 7b3f1a08 (� IRON AQUA BUZZ DICE)
 # XID(d4c3b2a1) [
-#     "GordianOpenIntegrity": "ssh-ed25519 AAAA... signing_ed25519"
+#     "GordianOpenIntegrity.SigningKey": "ssh-ed25519 AAAA... signing_ed25519"
+#     "GordianOpenIntegrity.RepositoryIdentifier": "did:repo:abc123def456"
 #     'key': Bytes(78) [
 #         'allow': 'All'
 #     ]
 #     'provenance': Bytes(115)
 # ]
-# Trust established using https://github.com/Stream44/Workshop
+# Trust established using https://github.com/Stream44/t44-BlockchainCommons.com
 ```
 
 ### 2.4 Parsing Algorithm
@@ -173,18 +174,27 @@ mark: "a9ea4602"
 
 ## 3. Envelope Assertions
 
-Three predicates are defined on XID Document envelopes:
+Four predicates are defined on XID Document envelopes:
 
-### 3.1 `"GordianOpenIntegrity"` — SSH Key Binding
+### 3.1 `"GordianOpenIntegrity.SigningKey"` — SSH Key Binding
 
 | | |
 |---|---|
-| **Predicate** | `"GordianOpenIntegrity"` |
+| **Predicate** | `"GordianOpenIntegrity.SigningKey"` |
 | **Object** | SSH public key string (e.g. `"ssh-ed25519 AAAA... signing_ed25519"`) |
 | **Where** | Inception envelope only |
 | **Purpose** | Binds the XID to the SSH key used for commit signing. Replaced on key rotation. |
 
-### 3.2 `"GordianOpenIntegrity.Documents"` — Document Registry
+### 3.2 `"GordianOpenIntegrity.RepositoryIdentifier"` — Repository DID Binding
+
+| | |
+|---|---|
+| **Predicate** | `"GordianOpenIntegrity.RepositoryIdentifier"` |
+| **Object** | Repository DID string (e.g. `"did:repo:abc123def456"`) |
+| **Where** | Inception envelope only |
+| **Purpose** | Binds the inception envelope to the repository identifier, enabling Layer 4 validation that the DID matches the actual identifier commit. |
+
+### 3.3 `"GordianOpenIntegrity.Documents"` — Document Registry
 
 | | |
 |---|---|
@@ -193,7 +203,7 @@ Three predicates are defined on XID Document envelopes:
 | **Where** | Inception envelope (added/updated when documents are introduced) |
 | **Purpose** | Registry for all decision documents. Enables discovery and XID verification. |
 
-### 3.3 `"GordianOpenIntegrity.Document"` — Document Self-Reference
+### 3.4 `"GordianOpenIntegrity.Document"` — Document Self-Reference
 
 | | |
 |---|---|
@@ -202,13 +212,14 @@ Three predicates are defined on XID Document envelopes:
 | **Where** | Each decision document envelope |
 | **Purpose** | Identifies the repository file path, enabling verification when distributed separately. |
 
-### 3.4 Envelope Structure
+### 3.5 Envelope Structure
 
 **Inception envelope:**
 
 ```
 XID(<hex>) [
-    "GordianOpenIntegrity": "<ssh-public-key>"
+    "GordianOpenIntegrity.SigningKey": "<ssh-public-key>"
+    "GordianOpenIntegrity.RepositoryIdentifier": "did:repo:<hash>"
     "GordianOpenIntegrity.Documents": '{"<path>":"XID(<hex>)"}'
     'key': Bytes(78) [
         'allow': 'All'
@@ -237,69 +248,52 @@ The `'key'` assertion carries the Ed25519 public key with `allow: 'All'` permiss
 
 ### 4.1 Repository Initialization
 
-Initialization establishes the root of trust in **two git commits**.
+Initialization establishes the trust root. It creates a [repository identifier](./WP-2026-01-GitRepository-Identifier.md) followed by the inception envelope.
 
 #### Prerequisites
 
-- An **Ed25519 key** — the *inception key*, used for signing git commits (generate with `ssh-keygen -t ed25519 -f <path> -N "" -C signing_ed25519`)
-- An **Ed25519 key** — the *provenance key*, a dedicated key used exclusively to initialize the provenance mark generator. This key MUST be kept secure, stored separately from the inception key, and never reused for any other purpose. If compromised, an attacker could forge provenance marks.
+- An **Ed25519 key** — the *signing key*, used for signing git commits and deriving XID key material (generate with `ssh-keygen -t ed25519 -f <path> -N "" -C signing_ed25519`)
+- An **Ed25519 key** — the *provenance key*, a dedicated key used exclusively to initialize the provenance mark generator. This key MUST be kept secure, stored separately from the signing key, and never reused for any other purpose. If compromised, an attacker could forge provenance marks.
 - Author name and email for git commits
 
-#### Step 1 — Create XID Document
+#### Step 1 — Create Repository Identifier
+
+Create a [repository identifier](./WP-2026-01-GitRepository-Identifier.md) using the signing key. This produces a signed, empty commit and a `.repo-identifier` file. The commit hash becomes the **repository DID**: `did:repo:<identifier-commit-hash>`.
+
+#### Step 2 — Create XID Document
 
 Using the Gordian stack:
 
-1. Generate a `PrivateKeyBase`
-2. Create a XID Document with:
+1. Derive a `PrivateKeyBase` from the signing key (SHA-256 hash of key file data)
+2. Derive a provenance seed from the provenance key (SHA-256 hash of key file data)
+3. Create a XID Document with:
    - One inception key (`allow: 'All'`)
-   - A provenance mark generator (initialized from the provenance key)
+   - A provenance mark generator (initialized from the provenance seed)
    - A genesis provenance mark (sequence 0)
-3. Add the SSH key binding assertion: `"GordianOpenIntegrity": "<ssh-public-key>"`
-4. Advance the provenance mark to sequence 1 (label: `"link-ssh-key"`)
-5. Serialize: `XIDDocument → Envelope → UR string`
 
-#### Step 2 — Create Inception Commit (empty)
+#### Step 3 — Create Ledger and Write Provenance Files
 
-```bash
-GIT_COMMITTER_NAME="<ssh-fingerprint>" \
-GIT_COMMITTER_EMAIL="<email>" \
-GIT_AUTHOR_NAME="<author>" \
-GIT_AUTHOR_EMAIL="<email>" \
-GIT_AUTHOR_DATE="<iso8601>" \
-GIT_COMMITTER_DATE="<iso8601>" \
-git init && \
-git -c gpg.format=ssh \
-    -c user.signingkey=<private-key-path> \
-    commit --allow-empty --no-edit --gpg-sign \
-    -m "[GordianOpenIntegrity] Establish a SHA-1 root of trust for origin and future commit verification." \
-    -m "Signed-off-by: <Author> <<email>>" \
-    -m "Trust established using https://github.com/Stream44/Workshop"
-```
+Create a ledger for the XID Document with the following envelope assertions:
+- `"GordianOpenIntegrity.SigningKey"`: the SSH public key string
+- `"GordianOpenIntegrity.RepositoryIdentifier"`: the repository DID
 
-This commit MUST be:
-- **Empty** — tree hash `4b825dc642cb6eb9a060e54bf8d69288fbee4904`
-- **SSH-signed** — `gpg.format=ssh`
-- **Committer name** set to the SSH key fingerprint (`SHA256:...`)
-
-The **repository DID** is: `did:repo:<inception-commit-hash>`
-
-#### Step 3 — Write Provenance Files
+Advance the provenance mark to sequence 1 (label: `"link-ssh-key"`).
 
 Write the provenance document (§2) to `.o/GordianOpenIntegrity.yaml`.
 
-Write the generator state to `.git/o/GordianOpenIntegrity-generator.yaml` (never committed). Sensitive fields (`seed`, `chainID`, `rngState`) are encrypted using the provenance key (see §1.2).
+Write the generator state to `.git/o/GordianOpenIntegrity-generator.yaml` (never committed). Sensitive fields (`seed`, `chainID`, `rngState`) are encrypted using the provenance seed (see §1.2).
 
 #### Step 4 — Commit Inception Envelope
 
-```bash
-git add .o/GordianOpenIntegrity.yaml
-git -c gpg.format=ssh \
-    -c user.signingkey=<private-key-path> \
-    commit --gpg-sign --signoff \
-    -m "[GordianOpenIntegrity] Establish inception Gordian Envelope at: .o/GordianOpenIntegrity.yaml
+Create a signed commit containing `.o/GordianOpenIntegrity.yaml`:
 
-Trust established using https://github.com/Stream44/Workshop"
 ```
+[GordianOpenIntegrity] Establish inception Gordian Envelope at: .o/GordianOpenIntegrity.yaml
+
+Trust established using https://github.com/Stream44/t44-BlockchainCommons.com
+```
+
+The commit MUST be SSH-signed with the signing key.
 
 #### Step 5 — Generate LifeHash SVGs
 
@@ -318,15 +312,18 @@ At inception, both files are identical.
 #### Expected Git Log
 
 ```
-commit <hash2> (HEAD -> main)
+commit <hash3> (HEAD -> main)
     [GordianOpenIntegrity] Establish inception Gordian Envelope at: .o/GordianOpenIntegrity.yaml
-    Trust established using https://github.com/Stream44/Workshop
+    Trust established using https://github.com/Stream44/t44-BlockchainCommons.com
+    Signed-off-by: <Author> <<email>>
+
+commit <hash2>
+    [RepositoryIdentifier] Track <hash1-short>
     Signed-off-by: <Author> <<email>>
 
 commit <hash1>
-    [GordianOpenIntegrity] Establish a SHA-1 root of trust for origin and future commit verification.
+    [RepositoryIdentifier] Establish signed repository identifier.
     Signed-off-by: <Author> <<email>>
-    Trust established using https://github.com/Stream44/Workshop
 ```
 
 ---
@@ -386,8 +383,8 @@ ssh-keygen -t ed25519 -f <key-dir>/<key-name> -N "" -C <key-name>
 
 #### Step 2 — Update XID Document
 
-1. Generate a new `PrivateKeyBase`, add it to the XID Document (`allow: 'All'`)
-2. Replace the `"GordianOpenIntegrity"` assertion with the new SSH public key
+1. Derive a new `PrivateKeyBase` from the new key, add it to the XID Document (`allow: 'All'`)
+2. Replace the `"GordianOpenIntegrity.SigningKey"` assertion with the new SSH public key
 3. Advance provenance (label: `"add-rotated-key"`)
 4. Remove the original inception key from the XID Document
 5. Advance provenance (label: `"remove-inception-key"`)
@@ -423,6 +420,31 @@ git -c gpg.format=ssh \
 
 ---
 
+### 4.5 Trust Root Reset
+
+A trust root reset creates a new inception envelope while preserving the existing repository identifier. This is a destructive operation that invalidates the previous provenance chain. It is useful when the provenance key is lost or compromised, or when the repository needs a fresh trust foundation.
+
+#### Prerequisites
+
+- An existing repository with a [repository identifier](./WP-2026-01-GitRepository-Identifier.md)
+- A new **signing key** and **provenance key** (or the same signing key with a new provenance key)
+
+#### Procedure
+
+1. Read the existing repository identifier from `.repo-identifier`
+2. Perform Steps 2–5 of §4.1 (Create XID Document, Create Ledger, Commit Inception Envelope, Generate LifeHash SVGs) using the existing repository DID instead of creating a new one
+
+The previous provenance history remains in the git log but is no longer validated. Verification uses only the **latest** trust root (see §5.1).
+
+#### Important Considerations
+
+- The repository DID does **not** change
+- The git history is **not** deleted
+- Previous provenance marks become invalid for verification
+- All future commits must be signed with the new signing key
+
+---
+
 ## 5. Verification
 
 Verification requires only the cloned repository and (optionally) a published provenance mark. No private key material is needed.
@@ -445,26 +467,26 @@ git show <hash>:.o/GordianOpenIntegrity.yaml
 
 Parse each version per §2.4 to obtain the Gordian Envelope and provenance mark.
 
-#### Step 2 — Verify Mark Monotonicity
+#### Step 2 — Verify Published Mark Against Latest Trust Root
 
-The `mark` field from each provenance version must change across revisions, indicating the document was updated. Without the Gordian stack, hex mark values can be compared for inequality (they MUST differ between versions). With the Gordian stack, full sequence monotonicity can be verified:
+Verification uses only the **latest** provenance version (the current trust root). This allows trust root resets (§4.5) without breaking verification.
 
-```
-for i in 1..N:
-    assert marks[i].sequence > marks[i-1].sequence
-```
-
-#### Step 3 — Verify Published Mark (optional)
+If a published mark identifier is provided:
 
 ```
-assert publishedMark == latestMark.identifier()
+assert publishedMark == latestVersion.mark.identifier()
 ```
 
-#### Step 4 — Collect SSH Keys
+#### Step 3 — Collect SSH Keys From All Versions
 
-Extract all SSH public keys from the `"GordianOpenIntegrity"` assertion across all provenance versions. Key rotation means different versions may carry different keys.
+Extract all SSH public keys from the `"GordianOpenIntegrity.SigningKey"` assertion across **all** provenance versions. This supports key rotation — commits signed with previously rotated keys remain valid.
 
-#### Step 5 — Audit Commit Signatures
+```
+for each version in fullHistory:
+    collect version.sshKeys (deduplicated)
+```
+
+#### Step 4 — Audit Commit Signatures
 
 Write all collected public keys to a temporary allowed-signers file:
 
@@ -480,31 +502,26 @@ git -c gpg.ssh.allowedSignersFile=<tmpfile> verify-commit <hash>
 
 A signature is valid if the output contains `Good "git" signature`.
 
-#### Step 6 — Verify XID Stability
+#### Step 5 — XID From Latest Trust Root
 
-```
-for all versions:
-    assert version.xid == versions[0].xid
-```
+The XID is taken from the latest provenance version. Cross-version XID stability is not enforced at this level because trust root resets create a new XID.
 
-#### Step 7 — Verify Inception Commit
+#### Strict Mode (Optional)
 
-```bash
-INCEPTION=$(git rev-list --max-parents=0 HEAD)
-TREE=$(git log --format=%T -1 $INCEPTION)
-assert $TREE == "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-```
+Two additional checks can be enabled via a `strict` parameter:
+
+- **`repoIdentifierIsInceptionCommit`** — Validates that the `GordianOpenIntegrity.RepositoryIdentifier` assertion in the inception envelope points to the repository's first commit.
+- **`signersAllAuthorized`** — Validates that every commit is signed by a key present in at least one provenance version's `GordianOpenIntegrity.SigningKey` assertion.
 
 #### Validity Criteria
 
 | Check | Condition |
 |-------|-----------|
 | Provenance exists | ≥1 provenance version found |
-| Marks monotonic | Sequence numbers strictly increasing |
 | Mark matches (if provided) | Published mark = latest mark identifier |
-| All signatures valid | Every commit signed by a known key |
-| XID stable | XID unchanged across all versions |
-| Inception empty | Inception commit tree is the empty tree |
+| All signatures valid | Every commit signed by a key from any provenance version |
+| Strict: identifier is inception | Repository identifier commit is the first commit (optional) |
+| Strict: signers authorized | All commit signing keys appear in provenance history (optional) |
 
 ---
 
@@ -514,7 +531,7 @@ In addition to repository-level checks, document verification adds:
 
 #### Step 1 — Collect Document Provenance
 
-Same as §5.1 Steps 1–3 but for the document path.
+Same as §5.1 Steps 1–4 but for the document path.
 
 #### Step 2 — Verify Self-Reference
 
@@ -548,18 +565,9 @@ Same as §5.1 Step 6 but for the document's XID.
 
 ## 6. Commit Message Conventions
 
-### 6.1 Inception Commit (empty)
+### 6.1 Repository Identifier Commits
 
-Three separate `-m` flags:
-
-```
--m "[GordianOpenIntegrity] Establish a SHA-1 root of trust for origin and future commit verification."
--m "Signed-off-by: <Author> <<email>>"
--m "Trust established using https://github.com/Stream44/Workshop"
-```
-
-Flags: `--allow-empty --no-edit --gpg-sign`
-Environment: `GIT_COMMITTER_NAME=<ssh-fingerprint>`
+See [WP-2026-01-GitRepository-Identifier](./WP-2026-01-GitRepository-Identifier.md) for the identifier commit message conventions.
 
 ### 6.2 Inception Envelope Commit
 
@@ -568,7 +576,7 @@ Single `-m` with the contract as a second paragraph:
 ```
 -m "[GordianOpenIntegrity] Establish inception Gordian Envelope at: .o/GordianOpenIntegrity.yaml
 
-Trust established using https://github.com/Stream44/Workshop"
+Trust established using https://github.com/Stream44/t44-BlockchainCommons.com"
 ```
 
 Flags: `--gpg-sign --signoff`
@@ -617,10 +625,10 @@ The **provenance key** (Ed25519) serves two purposes:
 
 This ensures that both the provenance key AND the generator file are required to produce subsequent marks — neither is sufficient alone.
 
-The provenance key is distinct from the inception key and MUST be:
+The provenance key is distinct from the signing key and MUST be:
 - Never reused for any other purpose
-- Stored separately from the inception key
-- Backed up securely — loss means inability to advance the provenance chain
+- Stored separately from the signing key
+- Backed up securely — loss means inability to advance the provenance chain (though a trust root reset via §4.5 can re-establish provenance)
 
 Generator state (`*-generator.yaml`) is equally sensitive. Compromise of both the provenance key and a generator file allows forging future marks. Generators MUST: never be committed, be stored with restrictive permissions, be backed up separately.
 
@@ -628,9 +636,9 @@ Generator state (`*-generator.yaml`) is equally sensitive. Compromise of both th
 
 Keys MUST be Ed25519. During rotation, old keys remain valid for historical commit verification.
 
-### 8.3 Inception Commit Immutability
+### 8.3 Repository Identifier Immutability
 
-Force-pushing a new inception commit changes the DID and invalidates all provenance.
+Force-pushing over the repository identifier commit changes the DID and invalidates all provenance. See [WP-2026-01-GitRepository-Identifier](./WP-2026-01-GitRepository-Identifier.md).
 
 ### 8.4 Provenance Mark Publishing
 
@@ -638,7 +646,7 @@ The published mark SHOULD be distributed independently of the repository (websit
 
 ### 8.5 SHA-1 Root of Trust
 
-The empty inception commit combined with SSH signature makes SHA-1 collision attacks infeasible for this use case.
+The empty repository identifier commit combined with SSH signature makes SHA-1 collision attacks infeasible for this use case.
 
 ### 8.6 Separable Distribution
 
