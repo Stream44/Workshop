@@ -4,18 +4,18 @@ $defs:
     $ref: "https://datatracker.ietf.org/doc/draft-mcnally-envelope/"
   mark:
     $ref: "https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md"
-envelope: "ur:envelope/lptpsotanshdhdcxwtmtbzpmhhetwdehsknyvdrejphdntiavopycecmmuwzrlhecaiyprhhbylbytrnoyaylftpsohdgltansgylftanshfhdcxfyonwttkhdtokngtjpbdiacwmejnintiwdpeadflmhpsdespynkbbkmsnydajsqdtansgrhdcxgubabwwzdsclswurecrhfmltsnhkhkamleptdywyamtydasgkivsqznsrnfpbdadoycsfncsfgoytpsoksdtfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmgmihjojljkinjyjljpkkgaieihjtjyiniyinihjptpsoksehieinieftjpihjojlftememesihiyeneneyiaeyiyeteoesdyemehetiyeneeeyieesieeneehsdyiyeoididhseyenemesemecoytpsoksctfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmguiniojtinjtiogrihkktpsokshnjkjkisdpihieeyececehescxfpfpfpfpfxeoglknhsfxehjzhtfygaehglghfeecfpfpfpfpgagdjtgoknhkfxgokpkkgmflgmgleogsdniofdemksksghgaidhdethfjnjegtecfxfphfeeflkphdkkjzkogwfecxjyeeeedpjkiniojtinjtiodpjeihkkoycsfztpsohdjktngdgmgwhflfaxhdimeejoothkcfmepmptmnzczojyfluybtkeyawzdasojyhtskwecaiywfgarhkgotcmhkvldpzctkhlsthyntsaaddijtmejeleetwnwmjohftyjknsoyimuowfahgmsabzdrtluevaurnnhybypazceocnsbbkknmodanlcyhlbnsktnasbkspheahrkjpdymdvdrhtlwftdhnrdfyrptpdkbefwsb"
-mark: "cad7e7b0"
+envelope: "ur:envelope/lptpsotanshdhdcxwtmtbzpmhhetwdehsknyvdrejphdntiavopycecmmuwzrlhecaiyprhhbylbytrnoytpsoksdtfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmgmihjojljkinjyjljpkkgaieihjtjyiniyinihjptpsoksehieinieftjpihjojlftdydyiyeoiaeyeeetiheyhsesieieiaetidehehehenihendydydyeoehdydyhsecesieiyieeoeeihdyoyaylftpsohdgltansgylftanshfhdcxfyonwttkhdtokngtjpbdiacwmejnintiwdpeadflmhpsdespynkbbkmsnydajsqdtansgrhdcxgubabwwzdsclswurecrhfmltsnhkhkamleptdywyamtydasgkivsqznsrnfpbdadoycsfncsfgoycsfztpsohdjktngdgmgwhflfaxhdimeejoothkcfmepmptmnzczojyfluybtkeyawzdasojyhtskwecaiywfgarhkgotcmhkvldpzctkhlsthyntsaaddijtmejeleetwnwmjohftyjknsoyimuowfahgmsabztoiedigshejkwszmftutjktlhevlrkoykipmcpgsjpihglldesdtongamhmnwzkivdrhtlwftdhnpdbtetlgoytpsoksctfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmguiniojtinjtiogrihkktpsokshnjkjkisdpihieeyececehescxfpfpfpfpfxeoglknhsfxehjzhtfygaehglghfeecfpfpfpfpgagdjtgoknhkfxgokpkkgmflgmgleogsdniofdemksksghgaidhdethfjnjegtecfxfphfeeflkphdkkjzkogwfecxjyeeeedpjkiniojtinjtiodpjeihkkpthnuros"
+mark: "2e661e1a"
 ---
-# Repository DID: did:repo:779ef662c2f8390718f642d9d64a0f3bba267975
-# Current Mark: cad7e7b0 (🅑 SONG TOYS VOID PUFF)
-# Inception Mark: 37fa3567 (🅑 EXAM ZAPS EPIC INTO)
+# Repository DID: did:repo:00f3c248e2a9ddc8b1116e60003100a59dfd34e0
+# Current Mark: 2e661e1a (🅑 DRUM INKY COOK CITY)
+# Inception Mark: 57eede95 (🅑 HANG WAXY URGE MILD)
 # XID(f09615ad) [
+#     "GordianOpenIntegrity.RepositoryIdentifier": "did:repo:00f3c248e2a9ddc8b1116e60003100a59dfd34e0"
 #     'key': Bytes(78) [
 #         'allow': 'All'
 #     ]
-#     "GordianOpenIntegrity.RepositoryIdentifier": "did:repo:779ef662c2f8390718f642d9d64a0f3bba267975"
-#     "GordianOpenIntegrity.SigningKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnUzYCUuyRGRN3L+gH7xxTIbX8VmkM5CAV4GuXylvOE t44-signing-key"
 #     'provenance': Bytes(115)
+#     "GordianOpenIntegrity.SigningKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnUzYCUuyRGRN3L+gH7xxTIbX8VmkM5CAV4GuXylvOE t44-signing-key"
 # ]
 # Trust established using https://github.com/Stream44/t44-BlockchainCommons.com
