@@ -1,3 +1,13 @@
+<table>
+  <tr>
+    <td><a href="https://Stream44.Studio"><img src=".o/stream44.studio/assets/Icon-v1.svg" width="42" height="42"></a></td>
+    <td><strong><a href="https://Stream44.Studio">Stream44 Studio</a></strong><br/>Open Development Project</td>
+    <td>Preview release for community feedback.<br/>Get in touch on <a href="https://discord.gg/9eBcQXEJAN">discord</a>.</td>
+  </tr>
+</table>
+
+⚠️ **Disclaimer:** Under active development. Code has not been audited. APIs and interfaces are subject to change!
+
 Stream44 Studio Workshop
 ===
 
@@ -39,4 +49,4 @@ Repository DID: `did:repo:00f3c248e2a9ddc8b1116e60003100a59dfd34e0`
   </tr>
 </table>
 
-(c) 2026 [Christoph.diy](https://christoph.diy) • Code: `MIT` • Text: [GNU Free Documentation License](https://www.gnu.org/licenses/fdl-1.3.txt) • Created with [Stream44.Studio](https://Stream44.Studio)
+(c) 2026 [Christoph.diy](https://christoph.diy) • Code: [MIT](./LICENSE.txt) • Text: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) • Created with [Stream44.Studio](https://Stream44.Studio)
