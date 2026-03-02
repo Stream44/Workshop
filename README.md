@@ -3,6 +3,7 @@
     <td><a href="https://Stream44.Studio"><img src=".o/stream44.studio/assets/Icon-v1.svg" width="42" height="42"></a></td>
     <td><strong><a href="https://Stream44.Studio">Stream44 Studio</a></strong><br/>Open Development Project</td>
     <td>Preview release for community feedback.<br/>Get in touch on <a href="https://discord.gg/9eBcQXEJAN">discord</a>.</td>
+    <td>Hand Designed<br/><b>AI Coded Alpha</a></td>
   </tr>
 </table>
 
@@ -30,7 +31,6 @@ Tools
 | [WT-2026-01](./Tools/WT-2026-01-GitRepositoryIdentifier.md) | **Git Repository Identifier** - TypeScript capsule for creating and validating `did:repo:` identifiers. | DRAFT |
 | [WT-2026-02](./Tools/WT-2026-02-GitRepositoryIntegrity.md) | **Git Repository Integrity** - TypeScript capsule implementing multi-layer integrity validation. | DRAFT |
 | [WT-2026-03](./Tools/WT-2026-03-GordianOpenIntegrity.md) | **Gordian Open Integrity**- TypeScript reference implementation using the Encapsulate capsule framework. Includes CLI tools, GitHub Actions, and a standalone git-level validation script. | DRAFT |
-
 
 Provenance
 ===
