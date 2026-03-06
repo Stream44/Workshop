@@ -28,6 +28,13 @@ Orchestration
 - https://www.perplexity.ai/hub/blog/introducing-perplexity-computer
 
 
+Protocols
+---
+
+- https://anuna.io/draft-cbcl - CBCL: A Self-Extensible Agent Communication Language
+  - https://codeberg.org/anuna/llm-md
+
+
 
 Prompts
 ---
@@ -51,6 +58,10 @@ AI Agents
 - https://github.com/nearai/ironclaw - OpenClaw inspired implementation in Rust focused on privacy and security
 
 - https://microsoft.github.io/agent-lightning/stable/ - Agent Lightning is the absolute trainer to light up AI agents.
+
+- https://alirezarezvani.medium.com/openclaw-the-practical-guide-to-building-an-ai-that-actually-can-run-your-work-and-business-3587dd4aa22b
+  - OpenClaw: The Practical Guide to Building an AI That Actually Can Run Your Work and Business
+  - A step-by-step guide for any role, any industry — with every prompt included.
 
 
 Data Graphs
