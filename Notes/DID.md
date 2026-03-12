@@ -14,4 +14,11 @@ Libraries
 
 - https://apicatalog.com/ - Java
 
-  - https://github.com/filip26/iron-did-cel-witness - did:cel witness service for oblivious witnessing, issuing signed, timestamped attestations over cryptographic event log hashes using Cloud KMS in a serverless function.
+  - https://github.com/filip26/iron-did-cel - An experimental, modular, composable implementation of an Oblivious Witness Service and did:cel identifiers managed by Google Cloud KMS.
+
+
+Frameworks
+---
+
+- https://github.com/archetech/archon/tree/main - Reference implementation for the did:cid DID method
+

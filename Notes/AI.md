@@ -21,11 +21,27 @@ Claude
 - https://www.linkedin.com/posts/ntudor_infrastructure-audits-with-claude-code-ugcPost-7434216111656603648-lAow
   - Infrastructure audits with Claude
 
+- https://alirezarezvani.medium.com/claude-code-loop-here-are-3-autonomous-loops-for-my-daily-work-f571c61ff9b5
+  - Claude Code /loop — Here Are 3 Autonomous Loops For My Daily Work!
+  - I Ran Claude Code /loop for Days. Only 3 Workflows That Survived.
+
+- https://alirezarezvani.medium.com/i-took-boris-cherny-the-creator-of-claude-code-at-his-word-here-is-what-4-days-of-following-his-1b660da12400
+  - I Took Boris Cherny (the Creator of Claude Code) at His Word — Here Is What 4 Days of Following His Tips Actually Looked Like
+  - Implementing Boris Cherny’s Claude Code workflow tips on a real side project — what worked, what did not, and the highest-leverage change.
+
+- https://alirezarezvani.medium.com/claude-code-simplify-command-the-practical-guide-to-automated-your-code-quality-74eb318a68c2
+  - Claude Code /simplify Command: The Practical Guide to Automated Your Code Quality
+  - I Stopped Reviewing My Own Code. /simplify Does It in 90 Seconds.
+
+
 
 Orchestration
 ---
 
 - https://www.perplexity.ai/hub/blog/introducing-perplexity-computer
+
+- https://github.com/paperclipai/paperclip - Open-source orchestration for zero-human companies 
+
 
 
 Protocols
@@ -63,6 +79,10 @@ AI Agents
   - OpenClaw: The Practical Guide to Building an AI That Actually Can Run Your Work and Business
   - A step-by-step guide for any role, any industry — with every prompt included.
 
+- Challenges
+  - https://www.linkedin.com/posts/anthony-alcaraz-b80763155_75-regression-rate-across-71-commits-584-activity-7437406270074281984-Oy-X/
+    - AI agents need more context
+
 
 Data Graphs
 ---
@@ -70,6 +90,7 @@ Data Graphs
 - https://github.com/microsoft/RPG-ZeroRepo - RPG (Repository Planning Graph) is a hierarchical graph representation that captures both the functional view (features, requirements) and the structural view (files, classes, functions, dependencies) of a software repository.
   - **Will have support for Claude soon**
 
+- https://github.com/Volland/agentic-memory/tree/main - Hands on ladybugdb implementation of agentic conversational memory
 
 
 Deep Work
